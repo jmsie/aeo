@@ -1,8 +1,7 @@
-from django.shortcuts import render
 from django.http import JsonResponse
-from .models import TextPair
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from ..models import TextPair
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -21,10 +20,6 @@ def get_similarity(request):
 
         return JsonResponse({'similarity_score': similarity_score})
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
-def home(request):
-    return render(request, 'app/home.html')
 
 
 def calculate_similarity(text1, text2):
