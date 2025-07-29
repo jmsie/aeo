@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Similarity</title>
+    <style>
+        .container { display: flex; flex-direction: row; justify-content: center; align-items: flex-start; margin-top: 40px; }
+        .inputs, .scores, .text { margin: 0 20px; }
+        .inputs input { display: block; margin-bottom: 20px; width: 200px; }
+        .scores .score { display: block; margin-bottom: 20px; width: 80px; text-align: center; background: #f0f0f0; border-radius: 4px; padding: 8px; }
+        .text textarea { width: 300px; height: 200px; }
+        .btn { margin-top: 30px; padding: 10px 30px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Text Similarity</h2>
+    <form id="similarityForm" onsubmit="return false;">
+        <div class="container">
+            <div class="inputs">
+                <label>搜尋語句 1</label><input type="text" name="text1" id="input1">
+                <label>搜尋語句 2</label><input type="text" name="text2" id="input2">
+                <label>搜尋語句 3</label><input type="text" name="text3" id="input3">
+                <label>搜尋語句 4</label><input type="text" name="text4" id="input4">
+                <label>搜尋語句 5</label><input type="text" name="text5" id="input5">
+            </div>
+            <div class="scores">
+                <label>分數 1</label><span class="score" id="score1">-</span>
+                <label>分數 2</label><span class="score" id="score2">-</span>
+                <label>分數 3</label><span class="score" id="score3">-</span>
+                <label>分數 4</label><span class="score" id="score4">-</span>
+                <label>分數 5</label><span class="score" id="score5">-</span>
+            </div>
+            <div class="text">
+                <label>文本</label>
+                <textarea id="mainText"></textarea>
+            </div>
+        </div>
+        <div style="text-align:center;">
+            <button class="btn" onclick="getSimilarityScores()">計算相似度</button>
+        </div>
+    </form>
+    <script>
+    function getSimilarityScores() {
+        for (let i = 1; i <= 5; i++) {
+            let text1 = document.getElementById('input' + i).value;
+            let text2 = document.getElementById('mainText').value;
+            let scoreBox = document.getElementById('score' + i);
+            if (text1 && text2) {
+                fetch('/api/get_similarity/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `text1=${encodeURIComponent(text1)}&text2=${encodeURIComponent(text2)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    scoreBox.textContent = data.similarity_score !== undefined ? data.similarity_score : '錯誤';
+                })
+                .catch(() => { scoreBox.textContent = '錯誤'; });
+            } else {
+                scoreBox.textContent = '-';
+            }
+        }
+    }
+    </script>
+</body>
+</html>

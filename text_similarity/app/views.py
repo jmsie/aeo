@@ -27,6 +27,10 @@ def home(request):
     return render(request, 'app/home.html')
 
 
+def text_similarity(request):
+    return render(request, 'app/text_similarity.html')
+
+
 def calculate_similarity(text1, text2):
     # Placeholder for actual similarity calculation logic
     return 0.0  # Replace with actual calculation logic
