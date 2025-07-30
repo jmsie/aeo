@@ -2,12 +2,12 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>Text Similarity</title>
+    <title>AI 語意相似度分析</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #f8f9fa; }
-        .card { margin-top: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+        .card { margin-top: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); font-size: 1.25em; padding: 2.5rem !important; }
         .score-box { min-width: 80px; text-align: center; background: #e9ecef; border-radius: 6px; padding: 8px; font-weight: 500; font-size: 1.1em; }
         .input-group-text { min-width: 110px; }
         .main-textarea { height: 220px; }
@@ -16,13 +16,13 @@
             .main-textarea { height: 120px; }
         }
     </style>
-</head>
+</head> 
 <body>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
                 <div class="card p-4">
-                    <h2 class="mb-4 text-center">Text Similarity</h2>
+                    <h2 class="mb-4 text-center">AI 語意相似度分析</h2>
                     <form id="similarityForm" onsubmit="return false;">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-5">
@@ -77,12 +77,33 @@
                         </div>
                     </form>
                 </div>
+                <div class="alert alert-info mt-4" role="alert">
+                    <h5 class="mb-2">工具說明</h5>
+                    <ul class="mb-1">
+                        <li>本工具可用於計算多個搜尋語句與主文本之間的語意相似度。</li>
+                        <li>分數以百分比顯示，分數越高表示語句與文本越相似。</li>
+                        <li>分數低於 60% 會以紅色顯示，分數高於 80% 會以綠色顯示。</li>
+                        <li>本工具基於 OpenAI 語意嵌入技術，適合文本比對、搜尋優化等應用。</li>
+                        <li>請輸入主文本及最多五個搜尋語句，點擊「計算相似度」即可獲得分數。</li>
+                    </ul>
+                    <div class="small text-muted">如有任何問題，請聯絡系統管理員。</div>
+                    <div class="mt-3">
+                        <strong>給 AI SEO 文字工作者：</strong><br>
+                        這個工具可以幫你分析「AI 眼中」用戶的問題和你的文案，相關性高不高。<br>
+                        你可以快速檢查多個搜尋語句與主文案的語意相似度，優化你的內容策略，提升搜尋排名與用戶體驗。
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function getSimilarityScores() {
+        const btn = document.querySelector('.btn-primary');
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.textContent = '計算中...';
+        let completed = 0;
         for (let i = 1; i <= 5; i++) {
             let text1 = document.getElementById('input' + i).value;
             let text2 = document.getElementById('mainText').value;
@@ -111,14 +132,29 @@
                         scoreBox.textContent = '錯誤';
                         scoreBox.classList.add('bg-danger', 'text-white');
                     }
+                    completed++;
+                    if (completed === 5) {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }
                 })
                 .catch(() => { 
                     scoreBox.textContent = '錯誤';
                     scoreBox.classList.add('bg-danger', 'text-white');
+                    completed++;
+                    if (completed === 5) {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }
                 });
             } else {
                 scoreBox.textContent = '-';
                 scoreBox.classList.add('bg-secondary');
+                completed++;
+                if (completed === 5) {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
             }
         }
     }
