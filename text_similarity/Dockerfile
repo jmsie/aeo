@@ -23,4 +23,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gunicorn
 
 # Copy the project files
-COPY . /app/
+#COPY . /app/
