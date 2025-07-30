@@ -2,7 +2,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from ..models import TextPair
+import openai
+import numpy as np
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 @method_decorator(csrf_exempt, name='dispatch')
 def get_similarity(request):
@@ -23,5 +28,21 @@ def get_similarity(request):
 
 
 def calculate_similarity(text1, text2):
-    # Placeholder for actual similarity calculation logic
-    return 0.0  # Replace with actual calculation logic
+    """
+    Use OpenAI embedding API (v1+) and cosine similarity to compare two texts.
+    Returns a float similarity score as a percentage rounded to 2 decimal places.
+    """
+    try:
+        client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        response = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=[text1.strip(), text2.strip()]
+        )
+        emb1 = np.array(response.data[0].embedding)
+        emb2 = np.array(response.data[1].embedding)
+        cosine_sim = float(np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2)))
+        percentage = round(cosine_sim * 100, 2)
+        return percentage
+    except Exception as e:
+        print(f"Embedding or similarity calculation failed: {e}")
+        return 0.0
