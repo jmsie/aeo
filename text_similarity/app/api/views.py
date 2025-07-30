@@ -1,14 +1,51 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from ..models import TextPair
-import openai
-import numpy as np
+
+import json
 import os
 import uuid
+import openai
+import numpy as np
 from dotenv import load_dotenv
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_GET
+from django.utils.decorators import method_decorator
+from ..models import TextPair, SessionRecord
 
 load_dotenv()
+
+
+# 儲存 session 資料
+@csrf_exempt
+@require_POST
+def save_session(request):
+    try:
+        body = json.loads(request.body.decode())
+        session_id = body.get('session_id')
+        data = body.get('data')
+        if not session_id or not data:
+            return JsonResponse({'error': 'Missing session_id or data'}, status=400)
+        obj, created = SessionRecord.objects.update_or_create(
+            session_id=session_id,
+            defaults={'data': json.dumps(data)}
+        )
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+# 取得 session 資料
+@csrf_exempt
+@require_GET
+def get_session_data(request):
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        return JsonResponse({'error': 'Missing session_id'}, status=400)
+    try:
+        obj = SessionRecord.objects.get(session_id=session_id)
+        return JsonResponse({'data': json.loads(obj.data)})
+    except SessionRecord.DoesNotExist:
+        return JsonResponse({'data': None})
+
 
 @csrf_exempt
 def get_session_id(request):
@@ -27,7 +64,6 @@ def get_similarity(request):
         text2 = request.POST.get('text2')
         similarity_score = calculate_similarity(text1, text2)
         text_pair = TextPair.objects.create(text1=text1, text2=text2, session_id=session_id)
-
         return JsonResponse({'similarity_score': similarity_score, 'session_id': session_id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
