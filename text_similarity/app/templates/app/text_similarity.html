@@ -126,14 +126,14 @@
         const originalText = btn.textContent;
         btn.textContent = '計算中...';
         let completed = 0;
-        const sessionId = getSessionIdFromUrl();
+        let scores = [null, null, null, null, null];
         for (let i = 1; i <= 5; i++) {
             let text1 = document.getElementById('input' + i).value;
             let text2 = document.getElementById('mainText').value;
             let scoreBox = document.getElementById('score' + i);
-            scoreBox.classList.remove('bg-danger', 'bg-success', 'bg-secondary', 'text-white');
+            scoreBox.classList.remove('bg-danger', 'bg-success', 'bg-secondary', 'bg-warning', 'text-white', 'text-dark');
             if (text1 && text2) {
-                fetch(`/api/get_similarity/?session_id=${sessionId}`, {
+                fetch(`/api/get_similarity/?session_id=${getSessionIdFromUrl()}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -151,34 +151,59 @@
                         } else {
                             scoreBox.classList.add('bg-warning', 'text-dark');
                         }
+                        scores[i-1] = data.similarity_score;
                     } else {
                         scoreBox.textContent = '錯誤';
                         scoreBox.classList.add('bg-danger', 'text-white');
+                        scores[i-1] = null;
                     }
                     completed++;
                     if (completed === 5) {
                         btn.disabled = false;
                         btn.textContent = originalText;
+                        saveSessionData();
                     }
                 })
                 .catch(() => { 
                     scoreBox.textContent = '錯誤';
                     scoreBox.classList.add('bg-danger', 'text-white');
+                    scores[i-1] = null;
                     completed++;
                     if (completed === 5) {
                         btn.disabled = false;
                         btn.textContent = originalText;
+                        saveSessionData();
                     }
                 });
             } else {
                 scoreBox.textContent = '-';
                 scoreBox.classList.add('bg-secondary');
+                scores[i-1] = null;
                 completed++;
                 if (completed === 5) {
                     btn.disabled = false;
                     btn.textContent = originalText;
+                    saveSessionData();
                 }
             }
+        }
+        function saveSessionData() {
+            const mainText = document.getElementById('mainText').value;
+            const queries = [];
+            for (let i = 1; i <= 5; i++) {
+                queries.push(document.getElementById('input' + i).value);
+            }
+            const sessionId = getSessionIdFromUrl();
+            const data = {
+                main_text: mainText,
+                queries: queries,
+                scores: scores
+            };
+            fetch('/api/save_session/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId, data: data })
+            });
         }
     }
     </script>
