@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,25 @@
     <title>Home</title>
 </head>
 <body>
-    <h1>AI 語意相似度分析</h1>
-    <p>分析看看 AI 眼中用戶的問題和你的文案，相關性高不高。</p>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card p-4 bg-light border-0 mb-4">
+                    <h1 class="mb-3 text-center">AI 語意相似度分析工具</h1>
+                    <p class="lead text-center mb-3">本工具可快速計算多個搜尋語句與主文本之間的語意相似度，協助 SEO、內容優化、用戶需求分析。</p>
+                    <ul class="mb-3">
+                        <li>輸入主文本及最多五個搜尋語句，點擊「計算相似度」即可獲得分數。</li>
+                        <li>分數以百分比顯示，分數越高表示語句與文本越相似。</li>
+                        <li>分數低於 60% 會以紅色顯示，分數高於 80% 會以綠色顯示。</li>
+                        <li>基於 OpenAI 語意嵌入技術，適合文本比對、搜尋優化、用戶需求分析等應用。</li>
+                    </ul>
+                    <div class="small text-muted text-center">如有任何問題，請聯絡系統管理員。</div>
+                </div>
+                <div class="text-center">
+                    <a href="/text_similarity/" class="btn btn-primary btn-lg">開始使用工具</a>
+                </div>
+            </div>
+        </div>
+    </div>    
 </body>
 </html>
