@@ -5,25 +5,30 @@ from ..models import TextPair
 import openai
 import numpy as np
 import os
+import uuid
 from dotenv import load_dotenv
 
 load_dotenv()
 
+@csrf_exempt
+def get_session_id(request):
+    """產生新的 session_id 並回傳"""
+    session_id = str(uuid.uuid4())
+    return JsonResponse({'session_id': session_id})
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 def get_similarity(request):
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        return JsonResponse({'error': 'Missing session_id'}, status=400)
     if request.method == 'POST':
         text1 = request.POST.get('text1')
         text2 = request.POST.get('text2')
-        # Implement text similarity logic here
         similarity_score = calculate_similarity(text1, text2)
+        text_pair = TextPair.objects.create(text1=text1, text2=text2, session_id=session_id)
 
-        # Save text1 and text2 to the database
-        text_pair = TextPair.objects.create(text1=text1, text2=text2)
-
-        # Use the saved text_pair object if needed
-        print(f"Saved TextPair with ID: {text_pair.id}")
-
-        return JsonResponse({'similarity_score': similarity_score})
+        return JsonResponse({'similarity_score': similarity_score, 'session_id': session_id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 

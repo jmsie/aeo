@@ -98,19 +98,42 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    function getSessionIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('session_id');
+    }
+    function setSessionIdToUrl(session_id) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('session_id', session_id);
+        window.location.replace(url.toString());
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionId = getSessionIdFromUrl();
+        if (!sessionId) {
+            // 先呼叫 API 拿 session_id
+            fetch('/api/get_session_id/', { method: 'POST' })
+                .then(response => response.json())  
+                .then(data => {
+                    if (data.session_id) {
+                        setSessionIdToUrl(data.session_id);
+                    }
+                });
+        }
+    });
     function getSimilarityScores() {
         const btn = document.querySelector('.btn-primary');
         btn.disabled = true;
         const originalText = btn.textContent;
         btn.textContent = '計算中...';
         let completed = 0;
+        const sessionId = getSessionIdFromUrl();
         for (let i = 1; i <= 5; i++) {
             let text1 = document.getElementById('input' + i).value;
             let text2 = document.getElementById('mainText').value;
             let scoreBox = document.getElementById('score' + i);
             scoreBox.classList.remove('bg-danger', 'bg-success', 'bg-secondary', 'text-white');
             if (text1 && text2) {
-                fetch('/api/get_similarity/', {
+                fetch(`/api/get_similarity/?session_id=${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
