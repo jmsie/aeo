@@ -118,6 +118,43 @@
                         setSessionIdToUrl(data.session_id);
                     }
                 });
+        } else {
+            // 如果有 session_id，嘗試讀取 session 資料
+            fetch(`/api/get_session_data/?session_id=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.data) {
+                        // 填入主文本
+                        document.getElementById('mainText').value = data.data.main_text || '';
+                        // 填入查詢語句
+                        if (Array.isArray(data.data.queries)) {
+                            for (let i = 1; i <= 5; i++) {
+                                document.getElementById('input' + i).value = data.data.queries[i-1] || '';
+                            }
+                        }
+                        // 填入分數
+                        if (Array.isArray(data.data.scores)) {
+                            for (let i = 1; i <= 5; i++) {
+                                const score = data.data.scores[i-1];
+                                const scoreBox = document.getElementById('score' + i);
+                                scoreBox.classList.remove('bg-danger', 'bg-success', 'bg-secondary', 'bg-warning', 'text-white', 'text-dark');
+                                if (typeof score === 'number') {
+                                    scoreBox.textContent = score + '%';
+                                    if (score < 60) {
+                                        scoreBox.classList.add('bg-danger', 'text-white');
+                                    } else if (score > 80) {
+                                        scoreBox.classList.add('bg-success', 'text-white');
+                                    } else {
+                                        scoreBox.classList.add('bg-warning', 'text-dark');
+                                    }
+                                } else {
+                                    scoreBox.textContent = '-';
+                                    scoreBox.classList.add('bg-secondary');
+                                }
+                            }
+                        }
+                    }
+                });
         }
     });
     function getSimilarityScores() {
