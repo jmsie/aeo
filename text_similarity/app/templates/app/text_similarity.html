@@ -255,20 +255,10 @@
         .then(response => response.json())
         .then(data => {
             if (data.session_id) {
-                // Update the URL with the new session ID
+                // Open a new tab without session_id in the URL
                 const url = new URL(window.location.href);
-                url.searchParams.set('session_id', data.session_id);
-                window.history.replaceState({}, '', url.toString());
-
-                // Clear all text inputs
-                document.getElementById('mainText').value = '';
-                for (let i = 1; i <= 5; i++) {
-                    document.getElementById('input' + i).value = '';
-                    const scoreBox = document.getElementById('score' + i);
-                    scoreBox.textContent = '-';
-                    scoreBox.className = 'input-group-text score-box'; // Reset classes
-                }
-
+                url.searchParams.delete('session_id');
+                window.open(url.toString(), '_blank');
             } else {
                 alert('無法開啟新的 Session');
             }
