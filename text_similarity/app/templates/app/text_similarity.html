@@ -27,7 +27,8 @@
                         <div class="row g-3 align-items-center">
                             <div class="col-md-5">
                                 <label class="form-label">文本</label>
-                                <textarea class="form-control main-textarea" id="mainText" placeholder="請輸入文本..."></textarea>
+                                <textarea class="form-control main-textarea" id="mainText" placeholder="請輸入文本..." maxlength="1000" oninput="checkTextLength()"></textarea>
+                                <div id="textWarning" class="text-danger mt-2" style="display: none;">文本超過 1000 字限制，請縮短內容。</div>
                             </div>
                             <div class="col-md-7">
                                 <div class="row g-2">
@@ -267,6 +268,19 @@
             console.error('Error:', error);
             alert('發生錯誤，請稍後再試');
         });
+    }
+    function checkTextLength() {
+        const mainText = document.getElementById('mainText');
+        const warning = document.getElementById('textWarning');
+        const computeButton = document.querySelector('.btn-primary');
+
+        if (mainText.value.length > 1000) {
+            warning.style.display = 'block';
+            computeButton.disabled = true;
+        } else {
+            warning.style.display = 'none';
+            computeButton.disabled = false;
+        }
     }
     </script>
 </body>
