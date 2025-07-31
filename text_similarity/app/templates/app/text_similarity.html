@@ -18,23 +18,23 @@
             font-weight: 500;
         }
         .input-group-text { min-width: 110px; }
-        .main-textarea { height: 220px; }
+        .main-textarea { height: 300px; }
         .btn-primary { padding: 10px 30px; font-size: 1.1em; }
         @media (max-width: 768px) {
-            .main-textarea { height: 120px; }
+            .main-textarea { height: 180px; }
         }
     </style>
 </head> 
 <body>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
+            <div class="col-lg-10 col-md-12">
                 <div class="card p-4">
                     <h2 class="mb-4 text-center">AI 語意相似度分析</h2>
                     <form id="similarityForm" onsubmit="return false;">
                         <div class="row g-3 align-items-center">
+                            <label class="form-label">文本</label>
                             <div class="col-md-5">
-                                <label class="form-label">文本</label>
                                 <textarea class="form-control main-textarea" id="mainText" placeholder="請輸入文本..." maxlength="1000" oninput="checkTextLength()"></textarea>
                                 <div id="textWarning" class="text-danger mt-2" style="display: none;">文本超過 1000 字限制，請縮短內容。</div>
                             </div>
