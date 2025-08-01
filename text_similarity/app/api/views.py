@@ -37,7 +37,7 @@ def save_session(request):
         )
 
         # Generate summary only if the session is newly created
-        if created and 'main_text' in data or True:
+        if created and 'main_text' in data:
             main_text = data.get('main_text', '')
             if main_text:
                 gpt_response = client.chat.completions.create(
