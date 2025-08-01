@@ -20,8 +20,50 @@
         .input-group-text { min-width: 110px; }
         .main-textarea { height: 300px; }
         .btn-primary { padding: 10px 30px; font-size: 1.1em; }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: #f8f9fa;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .sidebar h3 {
+            font-size: 1.2em;
+            margin-bottom: 1rem;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin-bottom: 0.5rem;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .sidebar ul li a:hover {
+            text-decoration: underline;
+        }
+        .main-content {
+            margin-left: 270px;
+        }
         @media (max-width: 768px) {
             .main-textarea { height: 180px; }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
         }
     </style>
 </head> 
@@ -110,6 +152,13 @@
             </div>
         </div>
     </div>
+    <div class="sidebar">
+        <h3>歷史工作階段</h3>
+        <ul id="sessionList"></ul>
+    </div>
+    <div class="main-content">
+        <!-- Existing content here -->
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
     function getSessionIdFromUrl() {
@@ -122,6 +171,8 @@
         window.location.replace(url.toString());
     }
     document.addEventListener('DOMContentLoaded', function() {
+        loadSessions();
+
         const sessionId = getSessionIdFromUrl();
         if (!sessionId) {
             // 先呼叫 API 拿 session_id
@@ -258,6 +309,16 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId, data: data })
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                // Use the summary from the API response
+                if (responseData && responseData.summary) {
+                    saveSessionToCookie(sessionId, responseData.summary);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving session:', error);
             });
         }
     }
@@ -294,6 +355,60 @@
             computeButton.disabled = false;
         }
     }
+
+    function saveSessionToCookie(sessionId, summary) {
+        const sessions = JSON.parse(getCookie('sessions') || '[]');
+        // Check if sessionId already exists
+        const exists = sessions.some(session => session.sessionId === sessionId);
+        if (!exists) {
+            sessions.push({ sessionId, summary });
+            document.cookie = `sessions=${JSON.stringify(sessions)}; path=/`;
+            loadSessions(); // Update the session list after saving
+        }
+        console.log('Session saved to cookie:', sessions);
+        console.log('Current session ID:', sessionId);
+        console.log('Current summary:', summary);
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function loadSessions() {
+        const sessions = JSON.parse(getCookie('sessions') || '[]');
+        const sessionList = document.getElementById('sessionList');
+        sessionList.innerHTML = '';
+        sessions.forEach(session => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.textContent = session.summary;
+            a.onclick = () => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('session_id', session.sessionId);
+                window.location.href = url.toString();
+            };
+            li.appendChild(a);
+            sessionList.appendChild(li);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSessions();
+
+        const sessionId = getSessionIdFromUrl();
+        if (sessionId) {
+            fetch(`/api/get_session_data/?session_id=${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.summary) {
+                        saveSessionToCookie(sessionId, data.summary);
+                        loadSessions();
+                    }
+                });
+        }
+    });
     </script>
 </body>
 </html>
