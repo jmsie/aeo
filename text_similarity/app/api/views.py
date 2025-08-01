@@ -69,9 +69,12 @@ def get_session_data(request):
         return JsonResponse({'error': 'Missing session_id'}, status=400)
     try:
         obj = SessionRecord.objects.get(session_id=session_id)
-        return JsonResponse({'data': json.loads(obj.data)})
+        return JsonResponse({
+            'data': json.loads(obj.data),
+            'summary': obj.summary  # Include summary in the response
+        })
     except SessionRecord.DoesNotExist:
-        return JsonResponse({'data': None})
+        return JsonResponse({'data': None, 'summary': None})
 
 
 @csrf_exempt

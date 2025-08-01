@@ -167,6 +167,10 @@
                                 }
                             }
                         }
+                        // 如果有 summary，將其設置為網頁的 title
+                        if (data && data.summary) {
+                            document.title = data.summary;
+                        }
                     }
                 });
         }
