@@ -1,4 +1,3 @@
-
 import json
 import os
 import uuid
@@ -13,6 +12,8 @@ from ..models import TextPair, SessionRecord
 
 load_dotenv()
 
+# Explicitly set the OpenAI API key
+client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # 儲存 session 資料
 @csrf_exempt
@@ -23,13 +24,39 @@ def save_session(request):
         session_id = body.get('session_id')
         data = body.get('data')
         if not session_id or not data:
-            return JsonResponse({'error': 'Missing session_id or data'}, status=400)
+            return JsonResponse(
+                {'error': 'Missing session_id or data'}, status=400
+            )
+
+        # Check if the session already exists
         obj, created = SessionRecord.objects.update_or_create(
             session_id=session_id,
-            defaults={'data': json.dumps(data)}
+            defaults={
+                'data': json.dumps(data),
+            }
         )
-        return JsonResponse({'success': True})
+
+        # Generate summary only if the session is newly created
+        if created and 'main_text' in data or True:
+            main_text = data.get('main_text', '')
+            if main_text:
+                gpt_response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Summarize the following text in 30 characters or less."},
+                        {"role": "user", "content": main_text}
+                    ]
+                )
+                summary = gpt_response.choices[0].message.content
+                summary = summary.strip()
+                if len(summary) > 30:
+                    summary = summary[:30] + "…"  # 如果你願意截斷
+                obj.summary = summary
+                obj.save()
+
+        return JsonResponse({'success': True, 'summary': obj.summary})
     except Exception as e:
+        print(f"Error saving session: {e}")
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -63,25 +90,32 @@ def get_similarity(request):
         text1 = request.POST.get('text1')
         text2 = request.POST.get('text2')
         similarity_score = calculate_similarity(text1, text2)
-        text_pair = TextPair.objects.create(text1=text1, text2=text2, session_id=session_id)
-        return JsonResponse({'similarity_score': similarity_score, 'session_id': session_id})
+        TextPair.objects.create(
+            text1=text1, text2=text2, session_id=session_id
+        )
+        return JsonResponse({
+            'similarity_score': similarity_score,
+            'session_id': session_id
+        })
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 def calculate_similarity(text1, text2):
     """
     Use OpenAI embedding API (v1+) and cosine similarity to compare two texts.
-    Returns a float similarity score as a percentage rounded to 2 decimal places.
+    Returns a float similarity score as a percentage rounded to 2 decimal
+    places.
     """
     try:
-        client = openai.OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         response = client.embeddings.create(
             model="text-embedding-3-small",
             input=[text1.strip(), text2.strip()]
         )
         emb1 = np.array(response.data[0].embedding)
         emb2 = np.array(response.data[1].embedding)
-        cosine_sim = float(np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2)))
+        cosine_sim = float(
+            np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
+        )
         percentage = round(cosine_sim * 100, 2)
         return percentage
     except Exception as e:
