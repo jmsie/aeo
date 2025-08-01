@@ -17,7 +17,7 @@ services:
       - "${NGINX_PORT}:80" # Use NGINX_PORT from .env.prod
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/staticfiles
+      - ./staticfiles:/app/staticfiles
     depends_on:
       - web
 
