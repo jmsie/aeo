@@ -90,8 +90,8 @@ def get_similarity(request):
     if not session_id:
         return JsonResponse({'error': 'Missing session_id'}, status=400)
     if request.method == 'POST':
-        text1 = request.POST.get('text1')
-        text2 = request.POST.get('text2')
+        text1 = request.POST.get('text1', '')[:3000]  # Limit text1 length
+        text2 = request.POST.get('text2', '')[:3000]  # Limit text2 length
         similarity_score = calculate_similarity(text1, text2)
         TextPair.objects.create(
             text1=text1, text2=text2, session_id=session_id
@@ -131,7 +131,7 @@ def generate_search_intents(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body)
-            user_text = body.get('text', '')
+            user_text = body.get('text', '')[:3000]  # Limit user_text length
 
             if not user_text:
                 return JsonResponse({'error': 'Text is required'}, status=400)
@@ -144,7 +144,8 @@ def generate_search_intents(request):
                         "role": "system",
                         "content": (
                             "Generate 5 search intents based on the following text. "
-                            "You must generate relevant search intents with same language as the input text."
+                            "You must generate relevant search intents with "
+                            "same language as the input text."
                             "盡可能貼近人類用語的方式生成搜索意圖。"
                             "Return the result as a JSON array of strings."
                         )
