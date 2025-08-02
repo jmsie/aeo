@@ -156,7 +156,7 @@
 
         .main-textarea {
             width: 100%;
-            height: 200px;
+            height: 300px;
             border: 2px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
@@ -391,6 +391,9 @@
                     <div id="textWarning" class="text-warning" style="display: none;">
                         <i class="fas fa-exclamation-triangle"></i> 文本超過 1000 字限制，請縮短內容。
                     </div>
+                    <button class="btn btn-secondary mt-2" onclick="generateQueries()">
+                        <i class="fas fa-magic"></i> 產生用戶提問
+                    </button>
                 </div>
 
                 <div class="form-section">
@@ -692,6 +695,49 @@
                 });
         }
     });
+
+    function generateQueries() {
+        const mainText = document.getElementById('mainText').value;
+        const generateButton = document.querySelector('.btn-secondary');
+
+        if (!mainText.trim()) {
+            alert('請先輸入主要文本！');
+            return;
+        }
+
+        // Disable the button and show loading text
+        generateButton.disabled = true;
+        const originalText = generateButton.innerHTML;
+        generateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 產生中...';
+
+        fetch('/api/generate_search_intents/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: mainText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.intents && Array.isArray(data.intents)) {
+                for (let i = 0; i < 5; i++) {
+                    const input = document.getElementById('input' + (i + 1));
+                    input.value = data.intents[i] || '';
+                }
+            } else {
+                alert('無法產生用戶提問，請稍後再試。');
+            }
+        })
+        .catch(error => {
+            console.error('Error generating queries:', error);
+            alert('發生錯誤，請稍後再試。');
+        })
+        .finally(() => {
+            // Re-enable the button and restore original text
+            generateButton.disabled = false;
+            generateButton.innerHTML = originalText;
+        });
+    }
     </script>
 </body>
 </html>

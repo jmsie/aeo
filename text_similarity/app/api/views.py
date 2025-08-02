@@ -124,3 +124,51 @@ def calculate_similarity(text1, text2):
     except Exception as e:
         print(f"Embedding or similarity calculation failed: {e}")
         return 0.0
+
+
+@csrf_exempt
+def generate_search_intents(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            user_text = body.get('text', '')
+
+            if not user_text:
+                return JsonResponse({'error': 'Text is required'}, status=400)
+
+            # Call OpenAI GPT API to generate search intents in JSON format
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Generate 5 search intents based on the following text. "
+                            "You must generate relevant search intents with same language as the input text."
+                            "盡可能貼近人類用語的方式生成搜索意圖。"
+                            "Return the result as a JSON array of strings."
+                        )
+                    },
+                    {"role": "user", "content": user_text}
+                ],
+                max_tokens=150,
+                n=1,
+                temperature=0.7
+            )
+
+            # Parse the JSON response from the LLM
+            intents = json.loads(response.choices[0].message.content.strip())
+
+            return JsonResponse(
+                {'intents': intents},
+                status=200
+            )
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {'error': 'Failed to parse JSON from LLM response'},
+                status=500
+            )
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
