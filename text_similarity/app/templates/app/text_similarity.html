@@ -473,7 +473,8 @@
     function setSessionIdToUrl(session_id) {
         const url = new URL(window.location.href);
         url.searchParams.set('session_id', session_id);
-        window.location.replace(url.toString());
+        window.location.replace(url.toString()); // Use assign for proper redirection
+        return url.toString(); // Return the new URL
     }
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -708,14 +709,13 @@
     
     function createNewSession() {
         fetch('/api/get_session_id/', {
-            method: 'GET',
+            method: 'POST',
         })
         .then(response => response.json())
         .then(data => {
             if (data.session_id) {
-                const url = new URL(window.location.href);
-                url.searchParams.delete('session_id');
-                window.open(url.toString(), '_blank');
+                new_url = setSessionIdToUrl(data.session_id); // Update the session ID in the URL
+                window.location.assign(new_url); // Use assign for proper redirection
             } else {
                 alert('無法開啟新的 Session');
             }
