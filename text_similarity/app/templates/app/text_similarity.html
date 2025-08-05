@@ -433,6 +433,10 @@
                 <button class="analyze-btn" onclick="getSimilarityScores()">
                     <i class="fas fa-chart-line"></i> 開始分析相似度
                 </button>
+
+                <div id="suggestionBox" class="alert alert-warning mt-3" style="display: none;">
+                    <i class="fas fa-lightbulb"></i> 提示：分數低於 60% 表示提問與主文本的相關性較低。請嘗試修改文本，使其更貼近主文本的主題或語意，以提高分數。
+                </div>
             </div>
 
             <div class="info-card">
@@ -507,12 +511,12 @@
         scoreBox.className = 'score-badge';
         if (typeof score === 'number') {
             scoreBox.textContent = score + '%';
-            if (score < 60) {
+            if (score < 30) {
                 scoreBox.classList.add('score-low');
-            } else if (score > 80) {
-                scoreBox.classList.add('score-high');
-            } else {
+            } else if (score < 60) {
                 scoreBox.classList.add('score-medium');
+            } else {
+                scoreBox.classList.add('score-high');
             }
         } else {
             scoreBox.textContent = '-';
@@ -521,18 +525,20 @@
     
     function getSimilarityScores() {
         const btn = document.querySelector('.analyze-btn');
+        const suggestionBox = document.getElementById('suggestionBox');
         btn.disabled = true;
         const originalHTML = btn.innerHTML;
         btn.innerHTML = '<div class="loading"></div> 計算中...';
         
         let completed = 0;
         let scores = [null, null, null, null, null];
-        
+        let lowScoreExists = false;
+
         for (let i = 1; i <= 5; i++) {
             let text1 = document.getElementById('input' + i).value;
             let text2 = document.getElementById('mainText').value;
             let scoreBox = document.getElementById('score' + i);
-            
+
             if (text1 && text2) {
                 fetch(`/api/get_similarity/?session_id=${getSessionIdFromUrl()}`, {
                     method: 'POST',
@@ -546,6 +552,9 @@
                     if (typeof data.similarity_score === 'number') {
                         scores[i-1] = data.similarity_score;
                         updateScoreDisplay(scoreBox, data.similarity_score);
+                        if (data.similarity_score < 60) {
+                            lowScoreExists = true;
+                        }
                     } else {
                         scoreBox.textContent = '錯誤';
                         scoreBox.className = 'score-badge score-low';
@@ -556,9 +565,14 @@
                         btn.disabled = false;
                         btn.innerHTML = originalHTML;
                         saveSessionData();
+                        if (lowScoreExists) {
+                            suggestionBox.style.display = 'block';
+                        } else {
+                            suggestionBox.style.display = 'none';
+                        }
                     }
                 })
-                .catch(() => { 
+                .catch(() => {
                     scoreBox.textContent = '錯誤';
                     scoreBox.className = 'score-badge score-low';
                     scores[i-1] = null;
@@ -567,6 +581,11 @@
                         btn.disabled = false;
                         btn.innerHTML = originalHTML;
                         saveSessionData();
+                        if (lowScoreExists) {
+                            suggestionBox.style.display = 'block';
+                        } else {
+                            suggestionBox.style.display = 'none';
+                        }
                     }
                 });
             } else {
@@ -577,6 +596,11 @@
                     btn.disabled = false;
                     btn.innerHTML = originalHTML;
                     saveSessionData();
+                    if (lowScoreExists) {
+                        suggestionBox.style.display = 'block';
+                    } else {
+                        suggestionBox.style.display = 'none';
+                    }
                 }
             }
         }
