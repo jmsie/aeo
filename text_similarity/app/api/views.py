@@ -43,7 +43,7 @@ def save_session(request):
                 gpt_response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
-                        {"role": "system", "content": "Summarize the following text in 30 characters or less."},
+                        {"role": "system", "content": "Summarize the following text in 30 characters or less, You must generate a summary in same language."},
                         {"role": "user", "content": main_text}
                     ]
                 )
