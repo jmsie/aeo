@@ -386,7 +386,8 @@
                 <div class="form-section">
                     <h3><i class="fas fa-file-text"></i> 主要文本</h3>
                     <div class="alert alert-info mt-3" role="alert">
-                        <i class="fas fa-info-circle"></i> 提示：RAG 儲存文件時，會先將文件按照語意切碎。因此建議您在此處輸入文本片段即可，並且每個文本片段建議只包含一個主題。 
+                        <i class="fas fa-info-circle"></i> 提示：RAG 儲存文件時，會先將文件按照語意切碎。因此建議您在此處輸入文本片段即可，並且每個文本片段建議只包含一個主題。<br>
+                        <strong><span style='background-color: #fee2e2; color: #dc2626;'>紅色</span></strong> 表示刪除的段落，不會被計算；<strong><span style='background-color: #dcfce7; color: #16a34a;'>綠色</span></strong> 表示新增的段落，會被計算。
                     </div>                    
                     <div 
                         class="main-textarea" 
@@ -556,12 +557,20 @@
         return highlightedText;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const mainText = getMainTextFromLocalStorage();
-        if (mainText) {
-            document.getElementById('mainText').innerHTML = mainText;
-        }
-    });
+    function cleanTextForApi(text) {
+        // Remove all HTML tags and exclude deleted text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+
+        const spans = tempDiv.querySelectorAll('span');
+        spans.forEach(span => {
+            if (span.style.backgroundColor === 'rgb(254, 226, 226)') { // Match deletion color
+                span.remove();
+            }
+        });
+
+        return tempDiv.textContent || tempDiv.innerText || '';
+    }
 
     function compareAndHighlightText() {
         const oldText = getMainTextFromLocalStorage();
@@ -570,8 +579,19 @@
         if (oldText && oldText !== newText) {
             const diffHtml = highlightTextDiff(oldText, newText);
             document.getElementById('mainText').innerHTML = diffHtml;
+
+            // Save cleaned text to localStorage
+            const cleanedText = cleanTextForApi(diffHtml);
+            saveMainTextToLocalStorage(cleanedText);
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const mainText = getMainTextFromLocalStorage();
+        if (mainText) {
+            document.getElementById('mainText').innerHTML = mainText;
+        }
+    });
 
     function getSimilarityScores() {
         compareAndHighlightText();
@@ -587,7 +607,7 @@
 
         for (let i = 1; i <= 5; i++) {
             let text1 = document.getElementById('input' + i).value;
-            let text2 = document.getElementById('mainText').innerHTML;
+            let text2 = cleanTextForApi(document.getElementById('mainText').innerHTML); // Clean the main text
             let scoreBox = document.getElementById('score' + i);
 
             if (text1 && text2) {
@@ -655,9 +675,9 @@
                 }
             }
         }
-        
+
         function saveSessionData() {
-            const mainText = document.getElementById('mainText').innerHTML;
+            const mainText = cleanTextForApi(document.getElementById('mainText').innerHTML); // Clean the main text
             const queries = [];
             for (let i = 1; i <= 5; i++) {
                 queries.push(document.getElementById('input' + i).value);
