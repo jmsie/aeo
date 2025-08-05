@@ -50,7 +50,7 @@ def save_session(request):
                 summary = gpt_response.choices[0].message.content
                 summary = summary.strip()
                 if len(summary) > 30:
-                    summary = summary[:30] + "…"  # 如果你願意截斷
+                    summary = summary[:25] + "…"  # 如果你願意截斷
                 obj.summary = summary
                 obj.save()
 
