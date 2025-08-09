@@ -105,3 +105,5 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
 # Add SECRET_KEY from environment variables
 SECRET_KEY = os.getenv('SECRET_KEY')
+
+DEBUG = os.getenv('DEBUG')
