@@ -34,3 +34,7 @@ def text_similarity(request):
 def calculate_similarity(text1, text2):
     # Placeholder for actual similarity calculation logic
     return 0.0  # Replace with actual calculation logic
+from django.shortcuts import render
+
+def query_based_text_optimize(request):
+    return render(request, 'app/query_based_text_optimize.html')

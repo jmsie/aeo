@@ -1,0 +1,120 @@
+{% extends './base.html' %}
+{% load static %}
+{% block title %}Query-Based 文本優化{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fas fa-pen-ruler"></i> Query-Based 文本優化</h1>
+        <button class="new-session-btn" onclick="createNewSession()">
+            <i class="fas fa-plus"></i> 新工作階段
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3><i class="fas fa-history"></i> 歷史工作階段</h3>
+        <div id="sessionList"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-container">
+            <div class="analysis-card">
+                <!-- 用戶問句 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-question-circle"></i> 用戶問句</h3>
+                    <div class="d-flex" style="gap:8px; align-items:center;">
+                        <input type="text" id="queryInput" class="form-control" placeholder="請輸入單一句子（使用者會怎麼問）">
+                        <button class="btn btn-outline-secondary" id="clearQueryBtn" title="清空問句">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <div class="form-check form-switch" title="輸入時自動計算" style="display: none;>
+                            <input class="form-check-input" type="checkbox" id="autoComputeSwitch">
+                            <label class="form-check-label" for="autoComputeSwitch">即時計算</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要文本 -->
+                <div class="form-section">
+                    <h3><i class="fas fa-file-alt"></i> 主要文本</h3>
+
+                    <div class="alert alert-info mt-3" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        建議將內容切成「單一主題」片段再貼上。<br>
+                        <strong><span style="background-color:#fee2e2;color:#dc2626;">紅色</span></strong> 代表刪除；<strong><span style="background-color:#dcfce7;color:#16a34a;">綠色</span></strong> 代表新增。
+                    </div>
+
+                    <div
+                        id="mainText"
+                        class="main-textarea"
+                        contenteditable="true"
+                        placeholder="請輸入要優化的主文本（最多 3000 字）"
+                        oninput="handleMainTextInput()"
+                        style="white-space: pre-wrap; overflow-wrap: break-word;"
+                    ></div>
+
+                    <div id="textWarning" class="text-warning" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i> 文本超過 3000 字，請縮短內容。
+                    </div>
+                </div>
+
+                <!-- 操作 -->
+                <div class="d-flex" style="gap:8px;flex-wrap:wrap;">
+                    <button class="analyze-btn" id="computeBtn" onclick="computeDistance()">
+                        <i class="fas fa-chart-line"></i> 計算相似度/距離
+                    </button>
+                    <button class="btn btn-secondary" id="optimizeBtn" onclick="suggestImprovements()">
+                        <i class="fas fa-wand-magic-sparkles"></i> 根據問句給優化建議
+                    </button>
+                </div>
+
+                <!-- 結果 -->
+                <div class="mt-3">
+                    <div class="result-row">
+                        <div class="result-item">
+                            <div class="result-label">相似度</div>
+                            <div class="score-badge" id="simScore">-</div>
+                        </div>
+                        <div class="result-item" style="display:none;">
+                            <div class="result-label">Cosine 距離 (1 - 相似度)</div>
+                            <div class="score-badge" id="cosDist">-</div>
+                        </div>
+                    </div>
+
+                    <div id="suggestionBox" class="alert alert-warning mt-3" style="display:none;">
+                        <i class="fas fa-lightbulb"></i>
+                        分數偏低，請調整主文本使其更貼近用戶搜尋意圖。
+                    </div>
+
+                    <div id="gapHints" class="alert alert-info mt-3" style="display:none;">
+                        <i class="fas fa-list-check"></i>
+                        <strong>關鍵詞差距提示：</strong>
+                        <div id="gapList" style="margin-top:6px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 說明卡 -->
+            <div class="info-card">
+                <h4><i class="fas fa-info-circle"></i> 工具說明</h4>
+                <ul>
+                    <li>輸入「用戶問句」與「主文本」，系統計算兩者的語意相似度。</li>
+                    <li>分數以百分比顯示；同時提供 1 - 相似度 作為「距離」參考。</li>
+                    <li>低於 60% 會顯示提醒，建議調整主文本內容。</li>
+                    <li>保留歷史 Session，方便回顧與反覆優化。</li>
+                </ul>
+                <div style="margin-top:16px;font-size:14px;opacity:0.8;">
+                    <i class="fas fa-lightbulb"></i>
+                    將核心關鍵詞自然融入段落標題、前兩句與結尾，通常能提升相關度與可讀性。
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- 需要 diff-match-patch。如果你的專案尚未載入，請把該檔放到 static/js/ 下 -->
+    <script src="{% static 'js/query_based_text_optimize.js' %}"></script>
+{% endblock %}
