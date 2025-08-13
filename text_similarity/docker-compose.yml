@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    command: gunicorn text_similarity.wsgi:application --bind 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     env_file:
@@ -14,10 +14,10 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "8000:80"
+      - "${NGINX_PORT}:80" # Use NGINX_PORT from .env.prod
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/staticfiles
+      - ./staticfiles:/app/staticfiles
     depends_on:
       - web
 
@@ -32,4 +32,3 @@ services:
 
 volumes:
   postgres_data:
-  static_volume:
