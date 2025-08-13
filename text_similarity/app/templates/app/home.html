@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 語意相似度分析工具 | Home</title>
+    <meta name="description" content="以問句導向與多提問覆蓋兩大工具，計算用戶問句與內容的語意距離、找出關鍵詞缺口，幫你優化內容並提升 AI 搜尋與自然搜尋的命中率。">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -23,54 +24,142 @@
             border-top: 2px dashed #b6c2e1;
             margin: 2rem 0 1.5rem 0;
         }
+        .tool-card {
+            box-shadow: 0 2px 18px rgba(0,0,0,0.06);
+            border-radius: 16px;
+        }
+        .tool-title {
+            color: #3b82f6;
+            font-weight: 700;
+        }
+        .cta-wrap a {
+            min-width: 260px;
+        }
     </style>
 </head>
 <body>
-    <div class="container py-5">
+    <div class="container py-5" role="main">
+        <!-- Hero -->
         <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
+            <div class="col-lg-9 col-md-10">
                 <div class="main-card card p-4 bg-white border-0 mb-4">
                     <div class="text-center mb-2">
                         <i class="bi bi-stars" style="font-size:2.5rem;color:#3b82f6;"></i>
                     </div>
                     <h1 class="mb-3 text-center fw-bold" style="color:#3b82f6;">AI 語意相似度分析工具</h1>
-                    <p class="lead text-center mb-3 text-secondary">本工具可快速計算多個搜尋語句與主文本之間的語意相似度，協助 SEO、內容優化、用戶需求分析。</p>
+                    <p class="lead text-center mb-3 text-secondary">
+                        透過語意嵌入快速評估「用戶提問」與你內容的距離，協助 SEO、內容優化與用戶需求對齊。
+                    </p>
                     <div class="alert alert-marketer mb-3">
                         <div class="d-flex align-items-center mb-2">
                             <i class="bi bi-lightbulb-fill me-2" style="font-size:1.5rem;color:#f59e42;"></i>
-                            <strong class="fs-5">什麼是問句式搜尋？</strong>
+                            <strong class="fs-5">為什麼現在需要「問句導向」的內容？</strong>
                         </div>
-                        <span class="d-block mt-2">隨著 AI 搜尋技術的進步，問句式搜尋（Question-based Search）成為新的趨勢。用戶不再僅僅輸入關鍵字，而是以問句的形式尋求答案。</span>
-                        <span class="d-block mt-2">Google 的 AI Overview（AIO）功能，會根據用戶的提問生成整理答案，這意味著你的內容需要更具結構性和針對性，才能被 AI 選中。</span>
-                        <span class="d-block mt-2">本工具幫助你分析「AI 眼中」你的文案與用戶問句的語意相似度，讓你的內容更容易被 AI 引用，提升品牌曝光與信任度。</span>
-                        <span class="d-block mt-2">未來的 SEO 不僅僅是優化搜尋引擎，而是讓你的內容 AIO-ready，搶占 AI 搜尋的先機。</span>
-                    </div>                    
-                    <div class="alert alert-marketer mb-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="bi bi-megaphone-fill me-2" style="font-size:1.5rem;color:#f59e42;"></i>
-                            <strong class="fs-5">給行銷人員：</strong>
-                        </div>
-                        <span class="d-block mt-2">AI overview（AI總結）是透過 <b>RAG</b>（Retrieval Augmented Generation）技術實現。RAG 會根據用戶的提問，檢索你的文章內容，然後由 AI 生成答案。</span>
-                        <span class="d-block mt-2">RAG 會不會找到你的文章的關鍵，取決於 <b>AI 眼中你的文案和用戶提問之間的相似程度</b>。如果你的文案和用戶問題很接近，AI 就更容易選中你的內容。</span>
-                        <span class="d-block mt-2">本工具可以幫你計算「AI 眼中」你的文案和用戶問句的語意相似度，讓你優化內容、提升曝光與轉換。</span>
+                        <p class="mt-2 mb-1">
+                            AI 搜尋盛行後，用戶更常以完整問句尋找答案。AI 的檢索與總結（如 RAG / AI Overview）會偏好能直接、結構化回應問句的內容。
+                            若你的文章與用戶問句語意距離過大，就較難被檢索與引用。
+                        </p>
+                        <p class="mt-2 mb-0">
+                            我們提供兩個互補工具：一個幫你從「已寫好的文章」反推「可能的用戶提問」；
+                            另一個讓你從「用戶問句」出發優化文章本身。兩者搭配，能同時擴大覆蓋面與提升命中率。
+                        </p>
                     </div>
-                    <div class="divider"></div>
-                    <ul class="mb-3 ps-3">
-                        <li><b>步驟一：</b> 輸入主文本及最多五個搜尋語句</li>
-                        <li><b>步驟二：</b> 點擊「計算相似度」即可獲得分數</li>
-                        <li>分數以百分比顯示，分數越高表示語句與文本越相似</li>
-                        <li>分數低於 60% 會以紅色顯示，分數高於 80% 會以綠色顯示</li>
-                        <li>基於 OpenAI 語意嵌入技術，適合文本比對、搜尋優化、用戶需求分析等應用</li>
-                    </ul>
-                    <div class="small text-muted text-center">如有任何問題，請聯絡系統管理員。</div>
-                </div>
-                <div class="text-center mt-4">
-                    <a href="/text_similarity/" class="btn btn-primary btn-lg px-5 py-3 shadow-sm" style="font-size:1.25em;">
-                        <i class="bi bi-rocket-takeoff me-2"></i>開始使用工具
-                    </a>
                 </div>
             </div>
         </div>
-    </div>    
+
+        <!-- 工具 B：問句導向內容優化（query_based_text_optimize） -->
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-10">
+                <div class="tool-card card p-4 bg-white border-0 mb-4">
+                    <h2 class="tool-title mb-2"><i class="bi bi-chat-square-text me-2"></i>問句導向內容優化</h2>
+                    <!-- 為什麼 -->
+                    <div class="mb-2">
+                        <strong>為什麼要用？</strong>
+                        <div class="text-secondary mt-1">
+                            當你手上有「明確的用戶問句」時，最關鍵的是：你的文章是否直接回應了這個問題？
+                            若核心實體、條件或語氣未對齊，AI 檢索可能不會選中你的內容。
+                        </div>
+                    </div>
+                    <!-- 能幫什麼 -->
+                    <div class="mb-2">
+                        <strong>這工具能幫上什麼忙？</strong>
+                        <ul class="text-secondary mt-1 mb-2">
+                            <li>即時計算「用戶問句」與「主文本」的語意相似度與距離</li>
+                            <li>顯示關鍵詞缺口（如地點/條件/數量/同義概念），指示應補強處</li>
+                            <li>提供結構化優化建議（標題、首段、結尾/FAQ）以提升被檢索與引用的機率</li>
+                        </ul>
+                    </div>
+                    <!-- 怎麼用 -->
+                    <div class="mb-3">
+                        <strong>怎麼用？</strong>
+                        <ol class="text-secondary mt-1">
+                            <li>在「用戶問句」輸入一個真實搜尋問題</li>
+                            <li>在「主要文本」貼上或撰寫你的文案片段（建議單一主題）</li>
+                            <li>點擊「計算相似度/距離」，查看分數與缺口提示並據此修改</li>
+                        </ol>
+                        <div class="small text-muted">分數越高表示越接近；若低於 60%，請補齊重要實體與條件，或提升敘述的明確度。</div>
+                    </div>
+                    <div class="cta-wrap text-center mb-2">
+                        <a href="/query_based_text_optimize/" class="btn btn-primary btn-lg px-5 py-3 shadow-sm"
+                           aria-label="前往問句導向內容優化工具頁面">
+                            <i class="bi bi-magic me-2"></i>前往「問句導向內容優化」
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工具 A：提問覆蓋雷達（text_similarity） -->
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-10">
+                <div class="tool-card card p-4 bg-white border-0 mb-4">
+                    <h2 class="tool-title mb-2"><i class="bi bi-collection me-2"></i>提問覆蓋雷達</h2>
+                    <!-- 為什麼 -->
+                    <div class="mb-2">
+                        <strong>為什麼要用？</strong>
+                        <div class="text-secondary mt-1">
+                            一篇文章通常能解答多種不同問法。只盯著單一關鍵詞，可能錯過大量流量入口。
+                            你需要知道：AI/使用者會用哪些「問句」找到你。
+                        </div>
+                    </div>
+                    <!-- 能幫什麼 -->
+                    <div class="mb-2">
+                        <strong>能幫你做什麼？</strong>
+                        <ul class="text-secondary mt-1 mb-2">
+                            <li>由 AI 反推出「這篇文章可能被哪些提問找到」</li>
+                            <li>計算「文章」與「多個可能問句」的語意相似度，找出覆蓋不足的問法</li>
+                            <li>據此調整標題/小節/FAQ，擴大被各種提問命中的機會</li>
+                        </ul>
+                    </div>
+                    <!-- 怎麼用 -->
+                    <div class="mb-3">
+                        <strong>怎麼用？</strong>
+                        <ol class="text-secondary mt-1">
+                            <li>貼上你已寫好的文章段落</li>
+                            <li>點擊「產生用戶提問」，取得多個可能問句</li>
+                            <li>點擊「開始分析相似度」，查看每個問句的分數並優化內容</li>
+                        </ol>
+                        <div class="small text-muted">分數越高表示越相似；低於 60% 建議補充內容或重寫關鍵段落。</div>
+                    </div>
+                    <div class="cta-wrap text-center">
+                        <a href="/text_similarity/" class="btn btn-primary btn-lg px-5 py-3 shadow-sm"
+                        aria-label="前往提問覆蓋雷達工具頁面">
+                            <i class="bi bi-rocket-takeoff me-2"></i>前往「提問覆蓋雷達」
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-9 col-md-10">
+                <div class="text-center small text-muted">
+                    如有任何問題，請聯絡系統管理員。
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
